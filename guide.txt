@@ -1,0 +1,94 @@
+create helm chart with name  [ webserver ]
+- helm create webserver
+install helm
+ - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+ - helm version
+
+
+install minikube, its the most used K8s environment locally for experiment and learning
+
+starting minikube
+ -  minikube start
+ - Link https://minikube.sigs.k8s.io/docs/start/?arch=%2Fmacos%2Fx86-64%2Fstable%2Fbinary+download
+ - docker also needs to be installed
+ - install kubectl </> brew install kubectl
+
+ RESOURCES FOR GUIDANCE AND UNDERSTANDING
+important sites
+ - kubernetes.io
+ - cncf.io
+ - lanscape.cncf.io
+ - kubernetes.io/docs/tutorial
+
+
+INSTALL OPENLENS FOR GUI OF KUBERNETES CLUSTER
+install helm charts as all requirements, the first webserver is the namespace
+  - create namespace </> kubectl create ns webserver
+  - helm install -n webserver webserver -f values.yaml .
+  * Combined commands as 1 and 2
+     * helm install -n webserver --create-namespace webserver -f values.yaml .
+  - uninstalling helm chart while keeping history
+     * helm uninstall -n webserver webserver --keep-history
+  - rolling back the chart
+     * need to install back and then keep history before rollbacks can be employed.
+     * helm rollback -n webserver webserver 1
+  - list helm charts in a namespace
+     * helm list -n webserver
+
+   SHOW EXTRA COMMANDS ABOUT CHARTS
+   - helm show -n webserver .
+   - helm show all -n webserver .
+   - show details of the namespace </> helm get all -n webserver webserver
+   - view user supply values </> helm get values -n webserver webserver
+
+   EDITING THE CHART.YAML FILE TO INSTALL POSTGRES
+   - adding postgresql as dependency from line  26-30 Chart.yaml
+   - updating the chart after adding postgres dependency </>  helm dep update
+   - view installed </> helm list -n webserver
+   - doing an upgrade </> helm upgrade --install -n webserver webserver -f values.yaml .
+   - get pods in the namespace </> kubectl get pods -n webserver
+
+   EDITING THE VALUES.YAML
+   - replicaCount: 2
+   - upgrade the charts </> helm upgrade --install -n webserver webserver -f values.yaml .
+   - output details into a file </> helm get all -n webserver webserver > output.yaml
+
+   UPGRADING THE CHARTS
+    - helm upgrade --help
+    - declarative </> helm upgrade -n webserver  --reuse-values --set replicacount=0 --set replicaCount=4 --set replicaCount=7  webserver .
+
+   PLANNING MULTI-STAGE CHART
+    what if we want to deploy the app to different stages with different values Example: dev, staging and production
+     - helm upgrade --install -n webserver webserver --create-namespace -f values.yaml .
+     - create a script file thats installs dev and the needed environment
+       </> helm upgrade --install -n webserver webserver --create-namespace -f values.yaml .
+       </> Make the script file executable </> chmod +x FILE.sh
+       </> Execute the file for the particular environment  ./FILE.sh
+     - View all Name Spaces </> kubectl get ns
+                            </> helm list -A
+     NUMBER OF PODS PER STAGE | NAMESPACE
+     </> kubectl get pods -n dev
+
+  ORGANIZING NAMESPACES PER FOLDER OR DIRECTORY || ORGANIZING MULTI-STAGE CHARTS
+  - Created directories to represent the environments and configured their individual values.yaml file
+  - while having their executables in the root
+  - execute each file to ensure not broken
+
+ ** CLEANING UP NB: Make sure to keep the history when creating and uninstall
+ </> helm uninstall -n dev webserver
+ </> helm uninstall -n prod webserver
+ </> helm uninstall -n webserver webserver
+
+ COLLABORATION WHILE WORKING WITH HELM IN DIFFERENT BRANCHES
+    BENEFITS OF USING GIT FOR HELM
+ - Version control for Helm
+ - Collaborative workflow
+ - Review and Audit Trails
+ - Automation & CICD
+ - Access Control
+
+
+
+
+
+ 
