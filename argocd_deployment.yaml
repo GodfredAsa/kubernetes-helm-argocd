@@ -1,3 +1,19 @@
+#apiVersion: argoproj.io/v1alpha1
+#kind: Application
+#metadata:
+#  name: webserver
+#  namespace: argocd
+#spec:
+#  project: argocd-helm
+#  source:
+#    repoURL: https://github.com/GodfredAsa/kubernetes-helm-argocd.git
+#    targetRevision: HEAD
+#    path: kubernetes-helm-argocd
+#  destination:
+#    server: https://kubernetes.default.svc
+#    namespace: webserver
+
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -12,3 +28,9 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: webserver
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
