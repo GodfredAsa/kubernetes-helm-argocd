@@ -6,9 +6,9 @@ metadata:
 spec:
   project: argocd-helm
   source:
-    repoURL: https://github.com/GodfredAsa/kubernetes-helm-argocd.git
+    repoURL: https://github.com/GodfredAsa/webserver.git
     targetRevision: HEAD
-    path: kubernetes-helm-argocd
+    path: webserver
   destination:
     server: https://kubernetes.default.svc
     namespace: webserver
