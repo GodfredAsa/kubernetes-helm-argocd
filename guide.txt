@@ -132,7 +132,7 @@ INSTALLING ARGO CD AS A HELM CHART
  - Configuring Repositories and connecting to github repositories
    - VIA HTTPS: Since only port forwarding
    - Generate Personal Access Token
-       - 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
+       - secret-key-notes
 
  - Creating Argo CD Application
     - We could create it through the portal or use a yaml file
