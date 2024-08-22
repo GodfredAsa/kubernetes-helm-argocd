@@ -87,6 +87,65 @@ install helm charts as all requirements, the first webserver is the namespace
  - Automation & CICD
  - Access Control
 
+AUTOMATE HELM WITH ARGO CD
+
+- Argo CD is a K8s native continuous deploymwnt tool in sync with K8s manifests in git
+- Git has a single source of truth
+- Used for desired state of application and infrastructure
+
+WHY ARGO CD
+- Automation of deployment
+- Auditable lifecycle management of apps
+- Visibility of K8s cluster through it
+- Real time updates on applications
+- Configuration drift detection in cluster
+- Multi-cluster support in single Git rep
+- Templating and overriding specific clusters
+
+INSTALLING ARGO CD AS A HELM CHART
+- install argo repo </> helm repo add argo https://argoproj.github.io/argo-helm
+- view repo list </>  helm repo list
+- helm repo update
+- create namespace for argocd </> kubectl  create ns argocd
+- install argocd </>  helm install -n argocd argocd argo/argo-cd
+- view argocd pods </> kubectl get pods -n argocd
+- watch the pods </> watch kubectl get pods -n argocd
+- accessing argo ui
+     </> kubectl port-forward service/argocd-server -n argocd 8080:443
+     </> kubectl port-forward svc/argo-cd-argocd-server -n argocd 8080:443
+- access login credentials
+     - username: admin
+     - patch or set password </> kubectl -n argocd patch secret argocd-secret \
+         -p '{"stringData": {"admin.password": "'$(htpasswd -bnBC 10 "" "newpassword" | tr -d ':\n')'"}}'
+
+     - View Password </> kubectl get secret -n argocd argo-cd-argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+
+ CONFIGURING ARGO CD THROUGH UI AFTER LOGGIN
+ - REPOSITORIES : where helm charts and resources that needs to be consumed lies
+ - PROJECTS: new Project --> Give name
+          - Source Repositories: *
+          - Destinations: Where to host your clusters
+          - Cluster resource allow list: Are the API allow groups permitted to be deployed
+          - Deny List: Specific resources can be denied here.
+
+ - Configuring Repositories and connecting to github repositories
+   - VIA HTTPS: Since only port forwarding
+   - Generate Personal Access Token
+       - secret-key-notes
+
+ - Creating Argo CD Application
+    - We could create it through the portal or use a yaml file
+    - Using yaml argocd_deployment.yaml
+      </> kubectl create -f argocd_deployment.yaml
+
+
+
+
+
+
+
+
 
 
 
