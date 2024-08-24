@@ -112,6 +112,8 @@ INSTALLING ARGO CD AS A HELM CHART
 - watch the pods </> watch kubectl get pods -n argocd
 - accessing argo ui
      </> kubectl port-forward service/argocd-server -n argocd 8080:443
+     kubectl port-forward --address 0.0.0.0 <pod-name> <local-port>:<remote-port> --namespace=<namespace> --timeout=5m
+
      </> kubectl port-forward svc/argo-cd-argocd-server -n argocd 8080:443
 - access login credentials
      - username: admin
@@ -139,15 +141,85 @@ INSTALLING ARGO CD AS A HELM CHART
     - Using yaml argocd_deployment.yaml
       </> kubectl create -f argocd_deployment.yaml
 
+REGULARLY UPDATING DOCKER IMAGES WITH ARGO CD || ARGO CD IMAGE UPDATER
+- Update container images belonging to K8s resources managed by Argo CD
+WHY ARGO CD IMAGE UPDATER
+- Some charts are not up to date
+- If an upstream pull request isnt possible, use Argo CD image update.
+- Policy-based (semi)-automated updating of outdated Docker images in Helm deployments
+- Useful for self maintained charts with involving upstream images.
+
+CONFIGURING GITHUB BACKEND FOR ARGO CD IMAGE UPDATER
+- code line 20 and line 21 in argocd_deployment.yaml
+- apply argocd image updater  </> kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml
+- generate personal access tokens select only repo
+    - kubectl -n ARGOCD_NAMESPACE create secret generic docker-image-updater --from-literal-username=BOT --from-literal-password=GENERATED_GITHUB_SECRET_KEY
+- kubectl -n argocd create secret generic docker-image-updater --from-literal-username=BOT --from-literal-password=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
+-  kubectl apply -f argocd_deployment.yaml
+
+CREATING YOUR OWN HELM CHART
+BEST PRACTICES
+- There are 2 versions of the charting, flat and nested types
+FINDING GOOD HELM CHARTS
+- Its way easier to use existing charts
+- Resources:
+    1. Bitnami charts
+    2. https://github.com/bitnami/charts/tree/main/bitnami
+    3. https://github.com/cdwv/awesome-helm?tab=readme-ov-file#repositories--hubs
+
+ THE CONNECTION BETWEEN DEPLOYMENT, SERVICE AND INGRESS IN CHART
+ - using a base chart of bitnami
+
+REGISTERING | PUBLISHING CHARTS WITH CHART MUSEUM
+-  Chart Museum is a community proven helm chart repository and is open source.
+- Platform for saving and managing helm charts repository
+- chart museum is available through gofish, docker, bash
+- https://github.com/helm/chartmuseum
+
+ steps
+  - visit the link just above
+  - make a dir called charts/
+  - run the docker command below
+  docker run --rm -it \
+    -p 8080:8080 \
+    -e DEBUG=1 \
+    -e STORAGE=local \
+    -e STORAGE_LOCAL_ROOTDIR=/charts \
+    -v $(pwd)/charts:/charts \
+    ghcr.io/helm/chartmuseum:v0.16.2
+
+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
+
+OPEN_URL http://localhost:8080
+- Add chart museum to your charts: http://127.0.0.1:8080
+- Add chartmuseum to repo: </>  helm repo add chartmuseum http://127.0.0.1:8080
+- view repo list: </>  helm repo list
 
 
+PACKAGING HELM CHARTS INTO CHART MUSEUM FOLDER
+- package webserver
+   - cd out of webserver dir
+   - helm package webserver
+   - mv packaged webserver into a charts dir at the same root/dir as the webserver
+   - stop and rerun the docker command above for starting the chartmesuem server
+     test url: localhost:8080/charts/webserver-someValues/
+     this should download the charts and the server response should be not found
 
+   download webserver by cli
+    - helm repo update
+    - create a dir
+    - cd into the dir
+    - helm fetch chartmuseum/webserver
+       -  you should see the tgz file in it
 
+CHAOS ENGINEERING [ CHAOS MESH ]
+-  Deliberate and controlled creation of errors in the deployment stages to learn from the consequences
+and plan for automated response techniques.
 
-
-
-
-
+WHY CHAOS MESH
+- test application robustness
+- Fix failures through predict and outcome strategy
+- resource: https://chaos-mesh.org/docs/production-installation-using-helm/
 
 
  
